@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { App } = require("@slack/bolt");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require('groq-sdk');
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -8,8 +8,7 @@ const app = new App({
   socketMode: true,
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 const YDKJS_BOOKS = [
   "https://raw.githubusercontent.com/getify/You-Dont-Know-JS/2nd-ed/get-started/README.md",
@@ -31,7 +30,7 @@ async function loadYDKJS() {
   console.log("fetched all books");
 }
 
-function buildMessages(prompt) {
+function buildMessages(question) {
   return [
     {
       role: "system",
@@ -44,7 +43,31 @@ function buildMessages(prompt) {
     },
     {
       role: 'user',
-      content: prompt
+      content: question,
     }
   ];
 }
+
+
+app.command('ydkjs-ask', async({ command, ack, respond }) => {
+  await ack();
+
+  const question = command.text;
+  if (!question) {
+    await respond('Please ask a question! Example: `ydkjs-ask what is a closure?`');
+    return
+  }
+
+  await respond({text: 'checking the ydkjs books....'});
+
+  try {
+    const result = await groq.chat.completions.create({
+      model: 'llama3-8b-8192',
+      messages: buildMessages(question),
+    });
+    await respond({ text: result.choices[0].message.content })
+  } catch (err) {
+    console.error(err);
+    await respond({ text: 'Something went wrong. Try again.' })
+  }
+});
