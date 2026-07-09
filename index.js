@@ -74,7 +74,12 @@ app.command('/ydkjs-ask', async({ command, ack, respond }) => {
 
 
 (async () =>{
-  await loadYDKJS();
-  await app.start();
-  console.log('bot is running')
+  try{
+    await loadYDKJS();
+    await app.start();
+    console.log('bot is running')
+  } catch (err) {
+    console.error('Startup error:', err);
+    process.exit(1)
+  }
 })
