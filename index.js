@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config({ path: '/root/ydkjs-bot/.env' });
 const { App } = require("@slack/bolt");
 const Groq = require('groq-sdk');
 
