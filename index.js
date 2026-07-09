@@ -23,6 +23,14 @@ const YDKJS_BOOKS = [
 
 let ydkjsContext = '';
 
+async function loadYDKJS() {
+  console.log("fetching the books");
+  const fetches = await Promise.all(
+    YDKJS_BOOKS.map(url => fetch(url).then(response => response.text()))
+  );
+  ydkjsContext = fetches.join('/n/n---/n/n');
+  console.log('fetched all books')
+}
 
 
 app.command("/ydkjs-explain", async ({ command, ack, respond }) => {
