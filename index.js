@@ -49,7 +49,7 @@ function buildMessages(question) {
 }
 
 
-app.command('ydkjs-ask', async({ command, ack, respond }) => {
+app.command('/ydkjs-ask', async({ command, ack, respond }) => {
   await ack();
 
   const question = command.text;
@@ -71,3 +71,10 @@ app.command('ydkjs-ask', async({ command, ack, respond }) => {
     await respond({ text: 'Something went wrong. Try again.' })
   }
 });
+
+
+(async () =>{
+  await loadYDKJS();
+  await app.start();
+  console.log('bot is running')
+})
